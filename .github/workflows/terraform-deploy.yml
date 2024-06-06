@@ -1,0 +1,39 @@
+name: Deploy Terraform on AWS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  build-aws-infra:
+    name: Apply Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Initialize Terraform
+        working-directory: ./Terraform-vpc
+        run: terraform init
+
+      - name: Validate Terraform
+        working-directory: ./Terraform-vpc
+        run: terraform validate
+
+      - name: Plan Terraform
+        id: terraform-plan
+        working-directory: ./Terraform-vpc
+        run: terraform plan
+
+      - name: Apply Terraform
+        working-directory: ./Terraform-vpc
+        run: terraform apply --auto-approve
